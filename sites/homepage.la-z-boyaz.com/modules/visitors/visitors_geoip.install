@@ -1,0 +1,313 @@
+<?php
+
+/* vim: set filetype=php: */
+
+/**
+ * @file
+ * Install/uninstall visitors geoip module.
+ */
+
+/**
+ * Update {visitors} table, add geoip support.
+ */
+function visitors_geoip_schema_alter(&$schema) {
+  $schema['visitors'] = array(
+    'fields' => array(
+      'visitors_continent_code' => array(
+        'type' => 'varchar',
+        'length' => 2,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'visitors_country_code' => array(
+        'type' => 'varchar',
+        'length' => 2,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'visitors_country_code3' => array(
+        'type' => 'varchar',
+        'length' => 3,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'visitors_country_name' => array(
+        'type' => 'varchar',
+        'length' => 128,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'visitors_region' => array(
+        'type' => 'varchar',
+        'length' => 128,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'visitors_city' => array(
+        'type' => 'varchar',
+        'length' => 128,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'visitors_postal_code' => array(
+        'type' => 'varchar',
+        'length' => 128,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'visitors_latitude' => array(
+        'type' => 'numeric',
+        'precision' => 13,
+        'scale' => 10,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'visitors_longitude' => array(
+        'type' => 'numeric',
+        'precision' => 13,
+        'scale' => 10,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'visitors_dma_code' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'unsigned' => TRUE,
+        'default' => 0,
+      ),
+      'visitors_area_code' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'unsigned' => TRUE,
+        'default' => 0,
+      )
+    )
+  );
+
+  return $schema;
+}
+
+/**
+ * Implementation of hook_install().
+ */
+function visitors_geoip_install() {
+  drupal_set_message(st('Installing visitors geoip module.'));
+
+  $ret = array();
+
+  if (!db_column_exists('visitors', 'visitors_continent_code')) {
+    db_add_field(
+      $ret,
+      'visitors',
+      'visitors_continent_code',
+      array(
+        'type' => 'varchar',
+        'length' => 2,
+        'not null' => TRUE,
+        'default' => '',
+      )
+    );
+  }
+
+  if (!db_column_exists('visitors', 'visitors_country_code')) {
+    db_add_field(
+      $ret,
+      'visitors',
+      'visitors_country_code',
+      array(
+        'type' => 'varchar',
+        'length' => 2,
+        'not null' => TRUE,
+        'default' => '',
+      )
+    );
+  }
+
+  if (!db_column_exists('visitors', 'visitors_country_code3')) {
+    db_add_field(
+      $ret,
+      'visitors',
+      'visitors_country_code3',
+      array(
+        'type' => 'varchar',
+        'length' => 3,
+        'not null' => TRUE,
+        'default' => '',
+      )
+    );
+  }
+
+  if (!db_column_exists('visitors', 'visitors_country_name')) {
+    db_add_field(
+      $ret,
+      'visitors',
+      'visitors_country_name',
+      array(
+        'type' => 'varchar',
+        'length' => 128,
+        'not null' => TRUE,
+        'default' => '',
+      )
+    );
+  }
+
+  if (!db_column_exists('visitors', 'visitors_region')) {
+    db_add_field(
+      $ret,
+      'visitors',
+      'visitors_region',
+      array(
+        'type' => 'varchar',
+        'length' => 128,
+        'not null' => TRUE,
+        'default' => '',
+      )
+    );
+  }
+
+  if (!db_column_exists('visitors', 'visitors_city')) {
+    db_add_field(
+      $ret,
+      'visitors',
+      'visitors_city',
+      array(
+        'type' => 'varchar',
+        'length' => 128,
+        'not null' => TRUE,
+        'default' => '',
+      )
+    );
+  }
+
+  if (!db_column_exists('visitors', 'visitors_postal_code')) {
+    db_add_field(
+      $ret,
+      'visitors',
+      'visitors_postal_code',
+      array(
+        'type' => 'varchar',
+        'length' => 128,
+        'not null' => TRUE,
+        'default' => '',
+      )
+    );
+  }
+
+  if (!db_column_exists('visitors', 'visitors_latitude')) {
+    db_add_field(
+      $ret,
+      'visitors',
+      'visitors_latitude',
+      array(
+        'type' => 'numeric',
+        'precision' => 13,
+        'scale' => 10,
+        'not null' => TRUE,
+        'default' => 0,
+      )
+    );
+  }
+
+  if (!db_column_exists('visitors', 'visitors_longitude')) {
+    db_add_field(
+      $ret,
+      'visitors',
+      'visitors_longitude',
+      array(
+        'type' => 'numeric',
+        'precision' => 13,
+        'scale' => 10,
+        'not null' => TRUE,
+        'default' => 0,
+      )
+    );
+  }
+
+  if (!db_column_exists('visitors', 'visitors_dma_code')) {
+    db_add_field(
+      $ret,
+      'visitors',
+      'visitors_dma_code',
+      array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'unsigned' => TRUE,
+        'default' => 0,
+      )
+    );
+  }
+
+  if (!db_column_exists('visitors', 'visitors_area_code')) {
+    db_add_field(
+      $ret,
+      'visitors',
+      'visitors_area_code',
+      array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'unsigned' => TRUE,
+        'default' => 0,
+      )
+    );
+  }
+
+  return $ret;
+}
+
+/**
+ * Implementation of hook_uninstall().
+ */
+function visitors_geoip_uninstall() {
+  $ret = array();
+
+  if (!db_table_exists('visitors')) {
+    return $ret;
+  }
+
+  if (db_column_exists('visitors', 'visitors_continent_code')) {
+    db_drop_field($ret, 'visitors', 'visitors_continent_code');
+  }
+
+  if (db_column_exists('visitors', 'visitors_country_code')) {
+    db_drop_field($ret, 'visitors', 'visitors_country_code');
+  }
+
+  if (db_column_exists('visitors', 'visitors_country_code3')) {
+    db_drop_field($ret, 'visitors', 'visitors_country_code3');
+  }
+
+  if (db_column_exists('visitors', 'visitors_country_name')) {
+    db_drop_field($ret, 'visitors', 'visitors_country_name');
+  }
+
+  if (db_column_exists('visitors', 'visitors_region')) {
+    db_drop_field($ret, 'visitors', 'visitors_region');
+  }
+
+  if (db_column_exists('visitors', 'visitors_city')) {
+    db_drop_field($ret, 'visitors', 'visitors_city');
+  }
+
+  if (db_column_exists('visitors', 'visitors_postal_code')) {
+    db_drop_field($ret, 'visitors', 'visitors_postal_code');
+  }
+
+  if (db_column_exists('visitors', 'visitors_latitude')) {
+    db_drop_field($ret, 'visitors', 'visitors_latitude');
+  }
+
+  if (db_column_exists('visitors', 'visitors_longitude')) {
+    db_drop_field($ret, 'visitors', 'visitors_longitude');
+  }
+
+  if (db_column_exists('visitors', 'visitors_dma_code')) {
+    db_drop_field($ret, 'visitors', 'visitors_dma_code');
+  }
+
+  if (db_column_exists('visitors', 'visitors_area_code')) {
+    db_drop_field($ret, 'visitors', 'visitors_area_code');
+  }
+
+  return $ret;
+}
+

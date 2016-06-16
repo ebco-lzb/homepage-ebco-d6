@@ -1,0 +1,31 @@
+{
+        global $base_url;
+        $previous=0;
+        $next=0;
+        $tmp_prev=-1;
+        $output="<br>";
+        $terms = taxonomy_node_get_terms_by_vocabulary($node->nid, _image_gallery_get_vid());
+        $term = array_pop($terms);
+        $res = db_query("SELECT n.nid FROM {term_node} t, {node} n WHERE t.tid=$term->tid AND n.nid=t.nid ORDER BY n.title ASC");
+        for($i=0;$i<db_num_rows($res);$i++)
+        {
+          $nidvalue=db_result($res,$i);
+          if($previous!=0 && $next==0)
+          {
+            $next=$nidvalue;
+          }
+          if($nidvalue == intval($node->nid))
+          {
+            $previous=$tmp_prev;
+          }
+          $tmp_prev=$nidvalue;
+        }
+        $output .= '<div class="links">';
+        if($previous>0) { $output .= "<a href=\"$base_url/node/$previous#pict\"><< previous photo <<</a>  "; }
+          else $output .= "<< previous photo <<  ";
+        $output .= " || ";
+        if($next>0) { $output .= "<a href=\"$base_url/node/$next#pict\">>> next photo >></a>"; }
+          else $output .= ">> next photo >>";
+        $output .= '</div><a name=pict></a><br>';   
+return $output;
+}

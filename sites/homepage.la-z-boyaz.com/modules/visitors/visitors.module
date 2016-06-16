@@ -1,0 +1,336 @@
+<?php
+
+/**
+ * @file
+ * Logs visitors for your site.
+ */
+
+require_once dirname(__FILE__) . '/visitors.block.inc';
+require_once dirname(__FILE__) . '/visitors.exit.inc';
+
+/**
+ * Implementation of hook_help().
+ */
+function visitors_help($section) {
+  switch ($section) {
+    case 'visitors':
+      return t('Visitors info.');
+
+    default:
+      return '';
+  }
+}
+
+/**
+ * Implementation of hook_perm().
+ */
+function visitors_perm() {
+  return array('access visitors', 'administer visitors');
+}
+
+/**
+ * Menu callback. Prints a listing of active nodes on the site.
+ */
+function visitors_menu() {
+  $items = array();
+
+  $items['admin/settings/visitors'] = array(
+    'title' => 'Visitors settings',
+    'description' => 'Configure visitors settings.',
+    'access arguments' => array('administer visitors'),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('visitors_admin_settings'),
+    'type' => MENU_NORMAL_ITEM,
+    'file' => 'forms/admin_settings.inc',
+  );
+
+  $items['visitors'] = array(
+    'title' => 'Visitors',
+    'description' => "Visitors info.",
+    'position' => 'left',
+    'page callback' => 'system_admin_menu_block_page',
+    'access arguments' => array('access visitors'),
+    'file' => 'system.admin.inc',
+    'file path' => drupal_get_path('module', 'system'),
+  );
+
+  $items['visitors/hits'] = array(
+    'title' => 'Recent hits',
+    'description' => 'View pages that have recently been visited.',
+    'page callback' => 'visitors_recent_hits',
+    'access arguments' => array('access visitors'),
+    'file' => 'visitors.admin.inc',
+    'type' => MENU_NORMAL_ITEM,
+  );
+
+  $items['visitors/pages'] = array(
+    'title' => 'Top pages',
+    'description' => 'View pages that have been hit frequently.',
+    'page callback' => 'visitors_top_pages',
+    'access arguments' => array('access visitors'),
+    'weight' => 1,
+    'file' => 'visitors.admin.inc',
+  );
+
+  $items['visitors/monthly_history'] = array(
+    'title' => 'Monthly history',
+    'description' => 'View pages count per month.',
+    'page callback' => 'visitors_monthly_history',
+    'access arguments' => array('access visitors'),
+    'file' => 'visitors.admin.inc',
+    'type' => MENU_NORMAL_ITEM,
+  );
+
+  $items['visitors/monthly_history/graph'] = array(
+    'title' => 'Monthly history',
+    'description' => 'View pages count per month.',
+    'page callback' => 'graph_visitors_monthly_history',
+    'access arguments' => array('access visitors'),
+    'file' => 'visitors.admin.inc',
+    'type' => MENU_CALLBACK,
+  );
+
+  $items['visitors/days_of_month'] = array(
+    'title' => 'Days of month',
+    'description' => 'View pages count per day of month.',
+    'page callback' => 'visitors_days_of_month',
+    'access arguments' => array('access visitors'),
+    'file' => 'visitors.admin.inc',
+    'type' => MENU_NORMAL_ITEM,
+  );
+
+  $items['visitors/days_of_month/graph'] = array(
+    'title' => 'Days of month',
+    'description' => 'View pages count per day of month.',
+    'page callback' => 'graph_visitors_days_of_month',
+    'access arguments' => array('access visitors'),
+    'file' => 'visitors.admin.inc',
+    'type' => MENU_CALLBACK,
+  );
+
+  $items['visitors/days_of_week'] = array(
+    'title' => 'Days of week',
+    'description' => 'View pages count per day of week.',
+    'page callback' => 'visitors_days_of_week',
+    'access arguments' => array('access visitors'),
+    'file' => 'visitors.admin.inc',
+  );
+
+  $items['visitors/days_of_week/graph'] = array(
+    'title' => 'Days of week',
+    'description' => 'View pages count per day of week.',
+    'page callback' => 'graph_visitors_days_of_week',
+    'access arguments' => array('access visitors'),
+    'file' => 'visitors.admin.inc',
+    'type' => MENU_CALLBACK,
+  );
+
+  $items['visitors/hours'] = array(
+    'title' => 'Hours',
+    'description' => 'View pages count per hour.',
+    'page callback' => 'visitors_hours',
+    'access arguments' => array('access visitors'),
+    'file' => 'visitors.admin.inc',
+    'type' => MENU_NORMAL_ITEM,
+  );
+
+  $items['visitors/hours/graph'] = array(
+    'title' => 'Hours',
+    'description' => 'View pages count per hour.',
+    'page callback' => 'graph_visitors_hours',
+    'access arguments' => array('access visitors'),
+    'file' => 'visitors.admin.inc',
+    'type' => MENU_CALLBACK,
+  );
+
+  $items['visitors/hosts'] = array(
+    'title' => 'Hosts',
+    'description' => 'View pages count per host.',
+    'page callback' => 'visitors_hosts',
+    'access arguments' => array('access visitors'),
+    'file' => 'visitors.admin.inc',
+    'type' => MENU_NORMAL_ITEM,
+  );
+
+  $items['visitors/user_activity'] = array(
+    'title' => 'User activity',
+    'description' => 'View user activity report (hits, nodes, comments).',
+    'page callback' => 'visitors_user_activity',
+    'access arguments' => array('access visitors'),
+    'file' => 'visitors.admin.inc',
+    'type' => MENU_NORMAL_ITEM,
+  );
+
+  $items['visitors/referers'] = array(
+    'title' => 'Referers',
+    'description' => 'View referer list.',
+    'page callback' => 'visitors_referer_list',
+    'access arguments' => array('access visitors'),
+    'file' => 'visitors.admin.inc',
+    'type' => MENU_NORMAL_ITEM,
+  );
+
+  $items['visitors/hosts/%'] = array(
+    'title' => 'Hits',
+    'description' => 'View host access log.',
+    'page callback' => 'visitors_host_hits',
+    'page arguments' => array(2),
+    'access arguments' => array('access visitors'),
+    'file' => 'visitors.admin.inc',
+    'type' => MENU_CALLBACK,
+  );
+
+  $items['visitors/hits/%'] = array(
+    'title' => 'Details',
+    'description' => 'View access log.',
+    'page callback' => 'visitors_hit_details',
+    'page arguments' => array(2),
+    'access arguments' => array('access visitors'),
+    'type' => MENU_CALLBACK,
+    'file' => 'visitors.admin.inc',
+  );
+
+  $items['node/%node/visitors'] = array(
+    'title' => 'Visitors',
+    'page callback' => 'visitors_node',
+    'access callback' => 'user_access',
+    'access arguments' => array('access visitors'),
+    'type' => MENU_LOCAL_TASK,
+    'weight' => 2,
+    'file' => 'visitors.admin.inc',
+  );
+
+  return $items;
+}
+
+/**
+ * Implementation of hook_theme().
+ */
+function visitors_theme() {
+  return array(
+    'visitors_block_view' => array(
+      'arguments' => array(),
+    ),
+  );
+}
+
+/**
+ * Implementation of hook_cron().
+ */
+function visitors_cron() {
+  $visitors_flush_log_timer = variable_get('visitors_flush_log_timer', 0);
+
+  if ($visitors_flush_log_timer > 0) {
+    // Clean up expired access logs.
+    db_query(
+      'DELETE FROM {visitors} WHERE visitors_date_time < %d',
+      time() - $visitors_flush_log_timer
+    );
+  }
+}
+
+/**
+ * Get difference in seconds mysql timezone and UTC.
+ *
+ * @return int
+ */
+function visitors_get_mysql_timezone_utc_diff() {
+    $query = 'SELECT
+      unix_timestamp(NOW()) - unix_timestamp(utc_timestamp())
+      AS `value`';
+    $result = db_query($query);
+    $data = db_fetch_object($result);
+
+    return $data->value;
+}
+
+/**
+ * Get difference in seconds user timezone and UTC.
+ *
+ * @return int
+ */
+function visitors_timezone_diff() {
+  $diff = variable_get('date_default_timezone', 0);
+  $configurable_timezones = variable_get('configurable_timezones', 0);
+  if ($configurable_timezones == '1') {
+    global $user;
+    if ($user->timezone !== NULL) {
+      $diff = $user->timezone;
+    }
+  }
+
+  return $diff;
+}
+
+/**
+ * Set date format for sql query.
+ *
+ * @param $field_name string field name
+ * @param $format string date format
+ *
+ * @return string date format
+ */
+function visitors_date_format_sql($field_name, $format) {
+  global $db_type;
+
+  switch ($db_type) {
+    case 'pgsql':
+      return visitors_pgsql_date_format_sql($field_name, $format);
+      break;
+    default:
+      return visitors_mysql_date_format_sql($field_name, $format);
+  }
+}
+
+/**
+ * Set date format for mysql sql query.
+ *
+ * @param $field_name string field name
+ * @param $format string date format
+ *
+ * @return string date format
+ */
+function visitors_mysql_date_format_sql($field_name, $format) {
+  $diff = visitors_timezone_diff() - visitors_get_mysql_timezone_utc_diff();
+
+  return
+    sprintf("date_format(from_unixtime(%s + (%d)), '%s')",
+      $field_name, $diff, $format
+    );
+}
+
+/**
+ * Set date format for pgsql sql query.
+ *
+ * @param $field_name string field name
+ * @param $format string date format
+ *
+ * @return string date format
+ */
+function visitors_pgsql_date_format_sql($field_name, $format) {
+  static $format_array = array(
+    '%H'    => "to_char(TIMESTAMP 'epoch' + (%s + (%d)) *
+                INTERVAL '1 second', 'HH24')",
+    '%a'    => "to_char(TIMESTAMP 'epoch' + (%s + (%d)) *
+                INTERVAL '1 second', 'dy')",
+    '%w'    => "cast(to_char(TIMESTAMP 'epoch' + (%s + (%d)) *
+                INTERVAL '1 second', 'D') as integer) - 1",
+    '%e'    => "to_char(TIMESTAMP 'epoch' + (%s + (%d)) *
+                INTERVAL '1 second', 'DD')",
+    '%Y %M' => "to_char(TIMESTAMP 'epoch' + (%s + (%d)) *
+                INTERVAL '1 second', 'YYYY Month')",
+    '%Y%m'  => "to_char(TIMESTAMP 'epoch' + (%s + (%d)) *
+                INTERVAL '1 second', 'YYYYMM')"
+  );
+
+  if (isset($format_array[$format])) {
+    $diff = visitors_timezone_diff();
+    $result = sprintf($format_array[$format], $field_name, $diff);
+  }
+  else {
+    $result = '';
+  }
+
+  return $result;
+}
+
