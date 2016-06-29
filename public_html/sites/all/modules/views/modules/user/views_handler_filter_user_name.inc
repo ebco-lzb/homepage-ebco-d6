@@ -1,9 +1,7 @@
 <?php
 
 /**
- * Filter handler for usernames.
- *
- * @ingroup views_filter_handlers
+ * Filter handler for usernames
  */
 class views_handler_filter_user_name extends views_handler_filter_in_operator {
   var $no_single = TRUE;
